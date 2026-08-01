@@ -1,0 +1,16 @@
+{
+  "name": "web-chat",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "yarn workspace server dev",
+    "dev:client": "yarn workspace client dev",
+    "build:server": "yarn workspace server build",
+    "build:client": "yarn workspace client build"
+  },
+  "license": "MIT"
+}
