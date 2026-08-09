@@ -2,24 +2,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { API_URL } from '@/utils/api';
-import { Lock, Mail } from 'lucide-react';
+import { User, UserCheck } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [guestName, setGuestName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { loginAsGuest } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleGuestSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
-
     setLoading(true);
     try {
-      await login({ email, password });
+      await loginAsGuest(guestName);
       navigate('/');
     } catch {
       // Error handled by AuthContext toast
@@ -35,67 +32,22 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-md p-8 rounded-2xl border bg-[var(--card)] border-[var(--border)] shadow-2xl space-y-6">
       <div className="text-center space-y-2">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--primary)] text-white text-2xl font-bold shadow-lg shadow-[var(--primary)]/30">
-          💬
+        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-purple-500 p-0.5 shadow-lg shadow-violet-500/30">
+          <img src="/favicon.svg" alt="WebChat Logo" className="h-full w-full rounded-2xl object-cover" />
         </div>
+
         <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Welcome to WebChat</h1>
-        <p className="text-sm text-[var(--muted-foreground)]">Sign in to your account to start chatting</p>
+        <p className="text-sm text-[var(--muted-foreground)]">Choose a sign-in method to start chatting</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-[var(--muted-foreground)]">Email Address</label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="pl-9 bg-[var(--secondary)] border-[var(--border)] text-[var(--foreground)]"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-[var(--muted-foreground)]">Password</label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
-            <Input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="pl-9 bg-[var(--secondary)] border-[var(--border)] text-[var(--foreground)]"
-            />
-          </div>
-        </div>
-
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-[var(--primary)] hover:bg-[var(--accent-violet-hover)] text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-[var(--primary)]/20 transition-all"
-        >
-          {loading ? 'Signing in...' : 'Sign In'}
-        </Button>
-      </form>
-
-      <div className="relative flex items-center justify-center">
-        <div className="border-t w-full border-[var(--border)]" />
-        <span className="bg-[var(--card)] px-3 text-xs uppercase text-[var(--muted-foreground)] font-semibold absolute">
-          Or continue with
-        </span>
-      </div>
-
+      {/* Google Sign In */}
       <Button
         type="button"
         variant="outline"
         onClick={handleGoogleLogin}
-        className="w-full flex items-center justify-center gap-2 border-[var(--border)] bg-[var(--secondary)] hover:bg-white/10 text-[var(--foreground)] py-2.5 rounded-xl transition-all"
+        className="w-full flex items-center justify-center gap-3 border-[var(--border)] bg-[var(--secondary)] hover:bg-white/10 text-[var(--foreground)] py-3 rounded-xl transition-all font-medium"
       >
-        <svg className="h-4 w-4" viewBox="0 0 24 24">
+        <svg className="h-5 w-5" viewBox="0 0 24 24">
           <path
             fill="#EA4335"
             d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z"
@@ -116,12 +68,40 @@ export function LoginForm() {
         Sign in with Google
       </Button>
 
-      <p className="text-center text-xs text-[var(--muted-foreground)]">
-        Don't have an account?{' '}
-        <Link to="/register" className="font-semibold text-[var(--primary)] hover:underline">
-          Sign up
-        </Link>
-      </p>
+      {/* Divider */}
+      <div className="relative flex items-center justify-center">
+        <div className="border-t w-full border-[var(--border)]" />
+        <span className="bg-[var(--card)] px-3 text-xs uppercase text-[var(--muted-foreground)] font-semibold absolute">
+          Or join as guest
+        </span>
+      </div>
+
+      {/* Guest Sign In Form */}
+      <form onSubmit={handleGuestSubmit} className="space-y-4">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-[var(--muted-foreground)]">Display Name (Optional)</label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+            <Input
+              type="text"
+              placeholder="e.g. Guest-1234 or your name"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              className="pl-9 bg-[var(--secondary)] border-[var(--border)] text-[var(--foreground)]"
+            />
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-[var(--primary)] hover:bg-[var(--accent-violet-hover)] text-white font-semibold py-2.5 rounded-xl shadow-lg shadow-[var(--primary)]/20 transition-all flex items-center justify-center gap-2"
+        >
+          <UserCheck className="h-4 w-4" />
+          {loading ? 'Entering as Guest...' : 'Continue as Guest'}
+        </Button>
+      </form>
     </div>
   );
 }
+

@@ -21,6 +21,7 @@ export function setupChatHandlers(socket: Socket) {
     socketSdk.toUser(data.to, 'private:receive', {
       messageId: msg.id,
       from: fromUserId,
+      fromUsername: msg.fromUsername,
       message: msg.content,
       type: msg.type,
       fileUrl: msg.fileUrl,
@@ -38,11 +39,44 @@ export function setupChatHandlers(socket: Socket) {
     }
   });
 
+  socket.on('private:history', (data: { withUserId: string }) => {
+    if (!data.withUserId || !fromUserId) return;
+    const messages = memoryStore.getPrivateMessages(fromUserId, data.withUserId);
+    socket.emit('private:history-response', {
+      withUserId: data.withUserId,
+      messages,
+    });
+  });
+
+  socket.on('group:history', (data: { groupId: string }) => {
+    if (!data.groupId) return;
+    const messages = memoryStore.getGroupMessages(data.groupId);
+    socket.emit('group:history-response', {
+      groupId: data.groupId,
+      messages,
+    });
+  });
+
+
   // ─── Group Chat ──────────────────────────────────────────
+  socket.on('group:delete', (data: { groupId: string }) => {
+    if (!data.groupId || data.groupId === 'public-lounge') return;
+    const group = memoryStore.getGroupById(data.groupId);
+    if (!group || group.adminId !== fromUserId) return;
+
+    const deleted = memoryStore.deleteGroup(data.groupId);
+    if (deleted) {
+      console.log(`🗑️ Group ${data.groupId} (${group.name}) deleted by admin ${fromUserId}`);
+      socketSdk.broadcast('group:deleted', { groupId: data.groupId });
+    }
+  });
+
   socket.on('group:create', (data: { name: string; description?: string; members: string[] }) => {
+
     if (!data.name) return;
 
     const group = memoryStore.createGroup(data.name, data.description, fromUserId, data.members);
+    socket.join(group.id);
 
     // Join all member sockets to the group room
     group.members.forEach((memberId) => {
@@ -72,16 +106,19 @@ export function setupChatHandlers(socket: Socket) {
       fileUrl: data.fileUrl,
     });
 
-    // Broadcast to room
-    socketSdk.toRoom(data.groupId, 'group:receive', {
+    const payload = {
       messageId: msg.id,
       groupId: data.groupId,
       from: fromUserId,
+      fromUsername: msg.fromUsername,
       message: msg.content,
       type: msg.type,
       fileUrl: msg.fileUrl,
       timestamp: msg.timestamp,
-    });
+    };
+
+    // Broadcast to room
+    socketSdk.toRoom(data.groupId, 'group:receive', payload);
   });
 
   // ─── Emoji Reactions ─────────────────────────────────────

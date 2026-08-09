@@ -26,7 +26,10 @@ export function configureGoogleOAuth() {
           let user = memoryStore.getUserByGoogleId(profile.id);
           if (!user) {
             user = memoryStore.getUserByEmail(email);
-            if (!user) {
+            if (user) {
+              user.googleId = profile.id;
+              if (profile.photos?.[0]?.value) user.avatar = profile.photos[0].value;
+            } else {
               user = memoryStore.createUser({
                 username: profile.displayName || email.split('@')[0],
                 email,

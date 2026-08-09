@@ -7,9 +7,10 @@ import { Users } from 'lucide-react'
 
 interface GroupItemProps {
   group: Group
+  onSelect?: () => void
 }
 
-export function GroupItem({ group }: GroupItemProps) {
+export function GroupItem({ group, onSelect }: GroupItemProps) {
   const { activeChat, setActiveChat, markAsRead } = useChat()
   const isActive =
     activeChat?.type === 'group' && activeChat.groupId === group.id
@@ -19,6 +20,7 @@ export function GroupItem({ group }: GroupItemProps) {
   const handleClick = () => {
     setActiveChat({ type: 'group', groupId: group.id })
     markAsRead(group.id)
+    onSelect?.()
   }
 
   return (

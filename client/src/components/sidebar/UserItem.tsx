@@ -7,9 +7,10 @@ import { formatTime } from "@/utils/formatTime";
 
 interface UserItemProps {
   conversation: Conversation;
+  onSelect?: () => void;
 }
 
-export function UserItem({ conversation }: UserItemProps) {
+export function UserItem({ conversation, onSelect }: UserItemProps) {
   const { activeChat, setActiveChat, markAsRead } = useChat();
   const isActive =
     activeChat?.type === "private" && activeChat.userId === conversation.userId;
@@ -19,6 +20,7 @@ export function UserItem({ conversation }: UserItemProps) {
   const handleClick = () => {
     setActiveChat({ type: "private", userId: conversation.userId });
     markAsRead(conversation.userId);
+    onSelect?.();
   };
 
   return (
@@ -46,12 +48,13 @@ export function UserItem({ conversation }: UserItemProps) {
         </Avatar>
         <span
           className={cn(
-            "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[var(--sidebar)]",
+            "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[var(--sidebar)] transition-colors",
             conversation.isOnline
-              ? "bg-[var(--accent-emerald)]"
-              : "bg-[var(--muted-foreground)]",
+              ? "bg-emerald-500 shadow-xs"
+              : "bg-gray-400 dark:bg-zinc-600",
           )}
         />
+
       </div>
 
       {/* Name + last message */}

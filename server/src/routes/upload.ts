@@ -17,10 +17,12 @@ const storage = multer.diskStorage({
   },
 });
 
+const getMaxFileSizeMB = () => parseInt(process.env.MAX_FILE_SIZE_MB || '5', 10);
+
 // File filter (images, pdf, doc, txt)
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Max 5MB
+  limits: { fileSize: getMaxFileSizeMB() * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowedMimeTypes = [
       'image/jpeg',
@@ -33,10 +35,12 @@ const upload = multer({
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only images, PDF, and text files under 5MB are allowed.'));
+      const maxMb = getMaxFileSizeMB();
+      cb(new Error(`Invalid file type. Only images, PDF, and text files under ${maxMb}MB are allowed.`));
     }
   },
 });
+
 
 // Upload route
 router.post('/', authenticateToken, upload.single('file') as any, (req: Request, res: Response) => {

@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,19 +9,22 @@ import { GroupItem } from '@/components/sidebar/GroupItem';
 import { UserItem } from '@/components/sidebar/UserItem';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
-import { LogOut, Moon, Plus, Search, Sun } from 'lucide-react';
+import { Check, Edit2, LogOut, Moon, Plus, Search, Sun, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface SidebarProps {
   isDark: boolean;
   onToggleTheme: () => void;
+  onSelectItem?: () => void;
 }
 
-export function Sidebar({ isDark, onToggleTheme }: SidebarProps) {
-  const { user, logout } = useAuth();
+export function Sidebar({ isDark, onToggleTheme, onSelectItem }: SidebarProps) {
+  const { user, logout, updateUsername } = useAuth();
   const { conversations, groups, allUsers, createGroup } = useChat();
   const [search, setSearch] = useState('');
   const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newUsername, setNewUsername] = useState(user?.username || '');
 
   const totalUnread =
     conversations.reduce((s, c) => s + c.unreadCount, 0) +
@@ -33,6 +37,16 @@ export function Sidebar({ isDark, onToggleTheme }: SidebarProps) {
     g.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleSaveName = async () => {
+    if (!newUsername.trim()) return;
+    try {
+      await updateUsername(newUsername.trim());
+      setIsEditingName(false);
+    } catch {
+      // Toast handled by AuthContext
+    }
+  };
+
   return (
     <aside
       className="flex flex-col h-full border-r"
@@ -42,15 +56,15 @@ export function Sidebar({ isDark, onToggleTheme }: SidebarProps) {
       <div className="px-4 pt-5 pb-3">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div
-              className="h-8 w-8 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}
-            >
-              💬
-            </div>
+            <img
+              src="/favicon.svg"
+              alt="WebChat Logo"
+              className="h-8 w-8 rounded-xl shadow-md shrink-0 object-cover"
+            />
             <span className="font-bold text-base" style={{ color: 'var(--foreground)' }}>
               WebChat
             </span>
+
             {totalUnread > 0 && (
               <span
                 className="h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center"
@@ -96,7 +110,7 @@ export function Sidebar({ isDark, onToggleTheme }: SidebarProps) {
             {filteredConvs.length === 0 ? (
               <p className="px-2 py-2 text-xs text-[var(--muted-foreground)]">No other users online yet</p>
             ) : (
-              filteredConvs.map((c) => <UserItem key={c.userId} conversation={c} />)
+              filteredConvs.map((c) => <UserItem key={c.userId} conversation={c} onSelect={onSelectItem} />)
             )}
           </div>
         </div>
@@ -123,7 +137,7 @@ export function Sidebar({ isDark, onToggleTheme }: SidebarProps) {
             {filteredGroups.length === 0 ? (
               <p className="px-2 py-2 text-xs text-[var(--muted-foreground)]">No groups created yet</p>
             ) : (
-              filteredGroups.map((g) => <GroupItem key={g.id} group={g} />)
+              filteredGroups.map((g) => <GroupItem key={g.id} group={g} onSelect={onSelectItem} />)
             )}
           </div>
         </div>
@@ -134,7 +148,7 @@ export function Sidebar({ isDark, onToggleTheme }: SidebarProps) {
         className="px-3 py-3 border-t flex items-center gap-2"
         style={{ borderColor: 'var(--border)' }}
       >
-        <Avatar className="h-8 w-8">
+        <Avatar className="h-8 w-8 shrink-0">
           <AvatarFallback
             className="text-xs font-bold"
             style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: '#fff' }}
@@ -142,14 +156,66 @@ export function Sidebar({ isDark, onToggleTheme }: SidebarProps) {
             {user?.username.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold truncate" style={{ color: 'var(--foreground)' }}>
-            {user?.username}
-          </p>
-          <p className="text-[10px] truncate" style={{ color: 'var(--accent-emerald)' }}>
-            ● Online
-          </p>
-        </div>
+
+        {isEditingName ? (
+          <div className="flex-1 flex items-center gap-1 min-w-0">
+            <Input
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              className="h-7 text-xs px-2 bg-[var(--secondary)] border-[var(--border)]"
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0 text-emerald-500 hover:text-emerald-400"
+              onClick={handleSaveName}
+            >
+              <Check className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0 text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              onClick={() => {
+                setNewUsername(user?.username || '');
+                setIsEditingName(false);
+              }}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-semibold truncate" style={{ color: 'var(--foreground)' }}>
+                {user?.username}
+              </p>
+              {user?.isGuest && (
+                <Badge variant="secondary" className="px-1 text-[9px] h-4">
+                  Guest
+                </Badge>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 shrink-0 text-[var(--muted-foreground)] hover:text-[var(--primary)]"
+                onClick={() => {
+                  setNewUsername(user?.username || '');
+                  setIsEditingName(true);
+                }}
+                title="Edit Display Name"
+              >
+                <Edit2 className="h-3 w-3" />
+              </Button>
+            </div>
+            <p className="text-[10px] truncate" style={{ color: 'var(--accent-emerald)' }}>
+              ● Online
+            </p>
+          </div>
+        )}
+
         <Button
           variant="ghost"
           size="icon"
@@ -171,3 +237,6 @@ export function Sidebar({ isDark, onToggleTheme }: SidebarProps) {
     </aside>
   );
 }
+
+
+

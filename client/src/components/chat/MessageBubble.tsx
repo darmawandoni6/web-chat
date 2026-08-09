@@ -17,7 +17,38 @@ interface MessageBubbleProps {
 export function MessageBubble({ message, isMine, senderName, onReact }: MessageBubbleProps) {
   const [showReactions, setShowReactions] = useState(false);
 
+  if (message.type === 'system') {
+    const isDisconnect =
+      message.content.includes('disconnected') ||
+      message.content.includes('offline') ||
+      message.content.includes('⚠️');
+
+    const isConnect =
+      !isDisconnect &&
+      (message.content.includes('reconnected') ||
+        message.content.includes('online') ||
+        message.content.includes('⚡'));
+
+    return (
+      <div className="flex items-center justify-center my-3 w-full animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className={cn(
+            'flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-medium border shadow-xs transition-colors',
+            isConnect
+              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+              : 'bg-gray-500/10 text-gray-500 dark:text-zinc-400 border-gray-500/20 dark:border-zinc-700/50'
+          )}
+        >
+          <span>{message.content}</span>
+        </div>
+      </div>
+    );
+  }
+
+
+
   const totalReactions = message.reactions.filter((r) => r.userIds.length > 0);
+
 
   const renderContent = () => {
     if (message.type === 'image' && message.fileUrl) {

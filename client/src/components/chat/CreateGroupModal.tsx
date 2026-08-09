@@ -81,8 +81,13 @@ export function CreateGroupModal({ isOpen, onClose, users, onCreate }: CreateGro
                       className="rounded accent-[var(--accent-violet)]"
                     />
                     <span className="font-medium text-[var(--foreground)]">{u.username}</span>
-                    <span className="text-[10px] text-[var(--muted-foreground)]">({u.email})</span>
+                    {u.email && !u.email.includes('@guest.local') ? (
+                      <span className="text-[10px] text-[var(--muted-foreground)]">({u.email})</span>
+                    ) : (
+                      <span className="text-[10px] font-medium text-[var(--accent-violet-hover)]">(Guest)</span>
+                    )}
                   </label>
+
                 ))
               )}
             </div>

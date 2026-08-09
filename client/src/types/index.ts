@@ -4,10 +4,12 @@ export interface User {
   username: string
   email: string
   avatar?: string
+  isGuest?: boolean
 }
 
 // ─── Message ────────────────────────────────────────────
-export type MessageType = 'text' | 'image' | 'file'
+export type MessageType = 'text' | 'image' | 'file' | 'system'
+
 
 export interface Reaction {
   emoji: string
@@ -17,6 +19,7 @@ export interface Reaction {
 export interface Message {
   id: string
   from: string
+  fromUsername?: string
   to?: string
   groupId?: string
   content: string
@@ -94,7 +97,11 @@ export interface TypingUpdatePayload {
 export interface PresencePayload {
   userId: string
   username: string
+  email?: string
+  reconnected?: boolean
 }
+
+
 
 // ─── Auth ────────────────────────────────────────────────
 export interface AuthUser {
@@ -102,16 +109,11 @@ export interface AuthUser {
   username: string
   email: string
   avatar?: string
+  isGuest?: boolean
   token: string
 }
 
-export interface LoginPayload {
-  email: string
-  password: string
+export interface GuestLoginPayload {
+  username?: string
 }
 
-export interface RegisterPayload {
-  username: string
-  email: string
-  password: string
-}

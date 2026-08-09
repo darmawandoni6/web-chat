@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
-import { uploadFileApi } from '@/utils/api';
+import { MAX_FILE_SIZE_BYTES, MAX_FILE_SIZE_MB, uploadFileApi } from '@/utils/api';
 import { Image as ImageIcon, Loader2, Paperclip, Send, Smile } from 'lucide-react';
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import toast from 'react-hot-toast';
@@ -44,16 +44,33 @@ export function MessageInput({ onSend, onTyping, isDark = true }: MessageInputPr
     }
   };
 
+  const ALLOWED_MIME_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'application/pdf',
+    'text/plain',
+  ];
+
   const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>, isImage: boolean) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size must be under 5MB');
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(`File size must be under ${MAX_FILE_SIZE_MB}MB`);
+      if (e.target) e.target.value = '';
+      return;
+    }
+
+    if (file.type && !ALLOWED_MIME_TYPES.includes(file.type)) {
+      toast.error(`Invalid file type. Only images (JPG, PNG, GIF, WEBP), PDF, and text files under ${MAX_FILE_SIZE_MB}MB are allowed.`);
+      if (e.target) e.target.value = '';
       return;
     }
 
     setUploading(true);
+
     try {
       const res = await uploadFileApi(file);
       const msgType = isImage || file.type.startsWith('image/') ? 'image' : 'file';
@@ -76,6 +93,7 @@ export function MessageInput({ onSend, onTyping, isDark = true }: MessageInputPr
       {/* Hidden file inputs */}
       <input
         type="file"
+        accept="image/*, application/pdf, text/plain"
         ref={fileInputRef}
         onChange={(e) => handleFileUpload(e, false)}
         className="hidden"
@@ -87,6 +105,7 @@ export function MessageInput({ onSend, onTyping, isDark = true }: MessageInputPr
         onChange={(e) => handleFileUpload(e, true)}
         className="hidden"
       />
+
 
       {/* Attachment buttons */}
       <div className="flex items-center gap-1">

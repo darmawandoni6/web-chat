@@ -4,11 +4,13 @@ export interface User {
   email: string;
   password?: string;
   googleId?: string;
+  isGuest?: boolean;
   avatar?: string;
   createdAt: number;
 }
 
-export type MessageType = 'text' | 'image' | 'file';
+export type MessageType = 'text' | 'image' | 'file' | 'system';
+
 
 export interface Reaction {
   emoji: string;
@@ -18,6 +20,7 @@ export interface Reaction {
 export interface Message {
   id: string;
   from: string; // userId
+  fromUsername?: string;
   to?: string; // userId for private message
   groupId?: string; // groupId for group message
   content: string;
@@ -41,4 +44,6 @@ export interface JWTPayload {
   userId: string;
   email: string;
   username: string;
+  isGuest?: boolean;
 }
+
