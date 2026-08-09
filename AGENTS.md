@@ -66,8 +66,11 @@ Follow this exact loop for **every task**:
 
 | Layer | Technology |
 |---|---|
+| Node.js | `>= 20.18.0` or `>= 22.12.0` (LTS) |
+
 | Language | TypeScript 5.x |
-| Package Manager | Yarn |
+| Package Manager | Yarn 1.22.22 (`packageManager`) |
+
 | Backend | Node.js + Express 4.x |
 | Real-time Server | `socketio-kit/server` (peer: `socket.io ^4.8`) |
 | Real-time Client | `socketio-kit/client` (peer: `socket.io-client ^4.7`) |
@@ -89,44 +92,45 @@ web-chat/
 ├── AGENTS.md                ← You are here
 ├── TDD.md                   ← Technical Design Document
 ├── TODO.md                  ← Task list + execution log
-├── tdd_todo_driven/
-│   └── SKILL.md             ← Skill definition
-├── server/                  ← Backend (TypeScript)
-│   ├── src/
-│   │   ├── index.ts
-│   │   ├── types/index.ts
-│   │   ├── store/memory.ts
-│   │   ├── middleware/auth.ts
-│   │   ├── config/oauth.ts
-│   │   ├── routes/
-│   │   │   ├── auth.ts
-│   │   │   └── upload.ts
-│   │   └── sockets/
-│   │       ├── chat.ts
-│   │       ├── typing.ts
-│   │       └── presence.ts
-│   ├── uploads/
-│   ├── tsconfig.json
-│   └── package.json
-└── client/                  ← Frontend (React + TypeScript)
-    ├── src/
-    │   ├── types/index.ts
-    │   ├── components/
-    │   │   ├── auth/
-    │   │   ├── chat/
-    │   │   ├── sidebar/
-    │   │   └── ui/          ← shadcn/ui auto-generated
-    │   ├── pages/
-    │   ├── hooks/
-    │   ├── context/
-    │   ├── utils/
-    │   ├── App.tsx
-    │   ├── main.tsx
-    │   └── index.css
-    ├── tsconfig.json
-    ├── tsconfig.app.json
-    ├── vite.config.ts
-    └── package.json
+├── turbo.json               ← Turborepo configuration
+├── apps/
+│   ├── server/              ← Backend (Express + TypeScript)
+│   │   ├── src/
+│   │   │   ├── index.ts
+│   │   │   ├── types/index.ts
+│   │   │   ├── store/memory.ts
+│   │   │   ├── middleware/auth.ts
+│   │   │   ├── config/oauth.ts
+│   │   │   ├── routes/
+│   │   │   │   ├── auth.ts
+│   │   │   │   └── upload.ts
+│   │   │   └── sockets/
+│   │   │       ├── chat.ts
+│   │   │       ├── typing.ts
+│   │   │       └── presence.ts
+│   │   ├── uploads/
+│   │   ├── tsconfig.json
+│   │   └── package.json
+│   └── client/              ← Frontend (React + Vite + TypeScript)
+│       ├── src/
+│       │   ├── types/index.ts
+│       │   ├── components/
+│       │   │   ├── auth/
+│       │   │   ├── chat/
+│       │   │   ├── sidebar/
+│       │   │   └── ui/      ← shadcn/ui auto-generated
+│       │   ├── pages/
+│       │   ├── hooks/
+│       │   ├── context/
+│       │   ├── utils/
+│       │   ├── App.tsx
+│       │   ├── main.tsx
+│       │   └── index.css
+│       ├── tsconfig.json
+│       ├── tsconfig.app.json
+│       ├── vite.config.ts
+│       └── package.json
+
 ```
 
 ---

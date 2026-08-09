@@ -2,15 +2,24 @@
   "name": "web-chat",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": ">=20.18.0",
+    "yarn": ">=1.22.22"
+  },
+
   "workspaces": [
-    "server",
-    "client"
+    "apps/*"
   ],
   "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
     "dev:server": "yarn workspace server dev",
-    "dev:client": "yarn workspace client dev",
-    "build:server": "yarn workspace server build",
-    "build:client": "yarn workspace client build"
+    "dev:client": "yarn workspace client dev"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "turbo": "^2.10.9"
+  }
 }

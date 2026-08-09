@@ -6,8 +6,10 @@ import {
   type Conversation,
   type Group,
   type Message,
+  type PresencePayload,
   type User,
 } from '@/types';
+
 import { getGroupsApi, getUsersApi } from '@/utils/api';
 import {
   createContext,
@@ -392,9 +394,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     const unsubUserRemoved = socketClient.on<{ userId: string }>('user:removed', (data) => {
       setAllUsers((prev) => prev.filter((u) => u.id !== data.userId));
       setConversations((prev) => prev.filter((c) => c.userId !== data.userId));
-      if (activeChat?.type === 'private' && activeChat.id === data.userId) {
+      if (activeChat?.type === 'private' && activeChat.userId === data.userId) {
         setActiveChat(null);
       }
+
     });
 
     return () => {

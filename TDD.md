@@ -63,8 +63,8 @@ graph TB
 ## Struktur Folder
 
 ```
-web-chat/
-├── server/                          # Backend (TypeScript)
+apps/
+├── server/                          # Backend (Node.js + Express + TypeScript)
 │   ├── src/
 │   │   ├── index.ts                 # Entry point
 │   │   ├── config/
@@ -86,7 +86,6 @@ web-chat/
 │   ├── tsconfig.json
 │   └── package.json
 │
-├── client/                          # Frontend (React + Vite + TypeScript)
 │   ├── public/
 │   ├── src/
 │   │   ├── assets/
